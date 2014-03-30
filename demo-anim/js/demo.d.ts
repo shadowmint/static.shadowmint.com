@@ -53,6 +53,7 @@ declare module demo {
         public loading: string;
         public item: TestSprite;
         public type: string;
+        public root: string;
         public stop(): void;
         public state(name: string): void;
         public res(name: string): void;

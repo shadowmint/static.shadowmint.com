@@ -327,12 +327,10 @@ var xx;
                 this.display = new xx.pixi.background.Display();
             }
             Background.prototype.attach = function (channel, stage) {
-                xn.log('attach background');
                 stage.sync.add(channel, this.model, this.display, Background.sync, Background.state);
             };
 
             Background.create = function (model, display) {
-                xn.log('create background');
                 model.ready = true;
                 model.stage = xx.pixi.Stage.instance;
                 display.sprite = PIXI.Sprite.fromImage(model.source);

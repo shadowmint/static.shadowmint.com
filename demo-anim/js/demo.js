@@ -129,7 +129,6 @@ var demo;
 
     var TestSprite = (function () {
         function TestSprite(b) {
-            xn.log(b.frames);
             var textures = new xx.texture_packer.Textures(b.frames, b.texture);
             var anims = new xx.texture_packer.FrameAnimation();
             anims.load(b.anim, textures);
@@ -233,7 +232,7 @@ var demo;
 
         /* Reload with a specific bundle */
         Demo.prototype.go = function (bundle) {
-            xn.Bundle.load(bundle, '/', function (e) {
+            xn.Bundle.load(bundle, demo.model.root, function (e) {
                 demo.control.update(function () {
                     var msg = 'Loaded: ' + e.assetsLoaded + '/' + e.assetsTotal;
                     demo.model.loading = msg;
@@ -250,7 +249,6 @@ var demo;
                     var display = { x: 300, y: 300 };
                     var target = document.getElementById('content');
                     var stage = xx.pixi.Stage.init(target, size, display, 0xffffff, function (stage) {
-                        xn.log("Adding background", b.back);
                         stage.sync.channel(0 /* DISPLAY */, true, true);
                         var background = new xx.pixi.Background(b.back.src);
                         stage.add(0 /* DISPLAY */, background);
@@ -290,6 +288,7 @@ var demo;
         demo.control = syn.context().watch(demo.model, document.getElementById("stuff"));
 
         // Load assets, do things
+        demo.model.root = root;
         demo.model.res('simple');
     }
     demo.main = main;
