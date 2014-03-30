@@ -33,18 +33,18 @@ declare module xx {
                 public ready: boolean;
                 public dead: boolean;
                 public source: string;
-                public stage: Stage;
+                public stage: pixi.Stage;
                 constructor(url: string);
             }
             class Display {
                 public sprite: any;
             }
         }
-        class Background implements Stagable {
+        class Background implements pixi.Stagable {
             public model: background.Model;
             public display: background.Display;
             constructor(url: string);
-            public attach(channel: any, stage: Stage): void;
+            public attach(channel: any, stage: pixi.Stage): void;
             static create(model: background.Model, display: background.Display): void;
             static destroy(model: background.Model, display: background.Display): void;
             static sync(model: background.Model, display: background.Display, changed: any[], dt: number): boolean;
@@ -68,11 +68,11 @@ declare module xx {
                     public gc: any;
                 }
             }
-            class Body implements Stagable {
+            class Body implements pixi.Stagable {
                 public model: body.Model;
                 public display: body.Display;
                 constructor(body: string);
-                public attach(channel: any, stage: Stage): void;
+                public attach(channel: any, stage: pixi.Stage): void;
                 public create(model: body.Model, display: body.Display): void;
                 public destroy(model: body.Model, display: body.Display): void;
                 public sync(model: body.Model, display: body.Display, changed: any[], dt: number): boolean;
@@ -85,8 +85,8 @@ declare var PIXI: any;
 declare module xx {
     module pixi {
         module box2d {
-            class Bound extends Body {
-                public create(model: body.Model, display: body.Display): void;
+            class Bound extends box2d.Body {
+                public create(model: box2d.body.Model, display: box2d.body.Display): void;
             }
         }
     }
@@ -127,40 +127,13 @@ declare module xx {
 declare var Box2D: any;
 declare module xx {
     module box2d {
-        class TiledWorld extends World {
-            public level: tiled.Level;
+        class TiledWorld extends box2d.World {
+            public level: xx.tiled.Level;
             public bounds: xn.List<any>;
-            constructor(level: tiled.Level);
+            constructor(level: xx.tiled.Level);
             private _addStaticBounds();
             public addMarker(name: string, density?: number, friction?: number, restitution?: number): any;
             public addMarkers(name: string, density?: number, friction?: number, restitution?: number): xn.List<any>;
-        }
-    }
-}
-declare var PIXI: any;
-declare module xx {
-    module texture_packer {
-        interface Frame {
-            x: number;
-            y: number;
-            dx: number;
-            dy: number;
-        }
-        class Textures {
-            private _rw;
-            private _rh;
-            private _image;
-            public width: number;
-            public height: number;
-            public sprites: {
-                [key: string]: Frame[];
-            };
-            constructor(data: any, image: HTMLImageElement);
-            private _resize(frame);
-            private _frame(data);
-            private _parse(src);
-            private _data(items, name);
-            public texture(): any;
         }
     }
 }

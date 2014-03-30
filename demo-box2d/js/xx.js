@@ -160,7 +160,7 @@ var xx;
     (function (pixi) {
         (function (box2d) {
             /* Avoid namespace clutter */
-            (function (_body) {
+            (function (body) {
                 /* Model for the background widget */
                 var Model = (function () {
                     function Model(body, parent) {
@@ -172,7 +172,7 @@ var xx;
                     }
                     return Model;
                 })();
-                _body.Model = Model;
+                body.Model = Model;
 
                 /* Display for the background */
                 var Display = (function () {
@@ -181,7 +181,7 @@ var xx;
                     }
                     return Display;
                 })();
-                _body.Display = Display;
+                body.Display = Display;
             })(box2d.body || (box2d.body = {}));
             var body = box2d.body;
 
@@ -270,13 +270,6 @@ var xx;
     })(xx.pixi || (xx.pixi = {}));
     var pixi = xx.pixi;
 })(xx || (xx = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="body.ts"/>
-/// <reference path="bound.ts"/>
-/// <reference path="../__init__.ts"/>
-/// <reference path="stage.ts"/>
-/// <reference path="background.ts"/>
-/// <reference path="box2d/__init__.ts"/>
 /// <reference path="__init__.ts"/>
 var xx;
 (function (xx) {
@@ -323,8 +316,8 @@ var xx;
             * @param invertY Invert the Y axis to be (0,0) center compliant
             */
             Level.prototype.resize = function (width, height, invertY) {
-                var _this = this;
                 if (typeof invertY === "undefined") { invertY = true; }
+                var _this = this;
                 var xfactor = width / this.width;
                 var yfactor = height / this.height;
                 this.width = width;
@@ -370,8 +363,6 @@ var xx;
     })(xx.tiled || (xx.tiled = {}));
     var tiled = xx.tiled;
 })(xx || (xx = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="level.ts"/>
 /// <reference path="__init__.ts"/>
 var xx;
 (function (xx) {
@@ -524,17 +515,17 @@ var xx;
                     var quad = value.shift();
                     return this.createBody(quad, density, friction, restitution);
                 } else {
-                    xn.console.warn('Invalid marker "' + name + '" was not found on level');
+                    xn.log.warn('Invalid marker "' + name + '" was not found on level');
                 }
                 return null;
             };
 
             /* Create a set of dynamic bodies representing a given marker and return the bodies for them */
             TiledWorld.prototype.addMarkers = function (name, density, friction, restitution) {
-                var _this = this;
                 if (typeof density === "undefined") { density = 1; }
                 if (typeof friction === "undefined") { friction = 1; }
                 if (typeof restitution === "undefined") { restitution = 1; }
+                var _this = this;
                 var rtn = new xn.List();
                 var value = this.level.markers.get(name);
                 if (value) {
@@ -543,7 +534,7 @@ var xx;
                     });
                     return rtn;
                 } else {
-                    xn.console.warn('Invalid marker "' + name + '" was not found on level');
+                    xn.log.warn('Invalid marker "' + name + '" was not found on level');
                 }
                 return null;
             };
@@ -553,109 +544,3 @@ var xx;
     })(xx.box2d || (xx.box2d = {}));
     var box2d = xx.box2d;
 })(xx || (xx = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="world.ts"/>
-/// <reference path="tiled_world.ts"/>
-/// <reference path="__init__.ts"/>
-var xx;
-(function (xx) {
-    (function (texture_packer) {
-        
-
-        /* Loads and handles a TexturePacker json 'hash' format file */
-        var Textures = (function () {
-            /*
-            * Load tiled level data from the given data JSON object
-            *
-            * Note that if the given image is not the same size as the texture json
-            * block the results are scaled down to match, but this may result in some
-            * edges 'bleeding' into each other unless the sprite spacing is sufficient.
-            *
-            * @param data The data from a json export of a texture packer texture.
-            * @param image The image instance.
-            */
-            function Textures(data, image) {
-                /* The same of named animations on this sheet */
-                this.sprites = {};
-                this._rw = data.meta.size.w;
-                this._rh = data.meta.size.h;
-                this._image = image;
-                this.width = image.width;
-                this.height = image.height;
-                var tmp = {};
-                for (var key in data.frames) {
-                    var info = this._parse(key);
-                    var items = this._data(tmp, info[0]);
-                    info.push(this._frame(data.frames[key]));
-                    items.push(info);
-                }
-                for (var key in tmp) {
-                    var raw = tmp[key];
-                    raw.sort(function (a, b) {
-                        return a[1] - b[1];
-                    });
-                    this.sprites[key] = [];
-                    for (var i = 0; i < raw.length; ++i) {
-                        var record = raw[i][2];
-                        this._resize(record);
-                        this.sprites[key].push(record);
-                    }
-                }
-            }
-            /* Resize from sheet size to actual size */
-            Textures.prototype._resize = function (frame) {
-                var fx = this.width / this._rw;
-                var fy = this.height / this._rh;
-                frame.x = Math.floor(frame.x * fx);
-                frame.y = Math.floor(frame.y * fy);
-                frame.dx = Math.floor(frame.dx * fx);
-                frame.dy = Math.floor(frame.dy * fy);
-            };
-
-            /* Extract a frame reference from a node */
-            Textures.prototype._frame = function (data) {
-                return {
-                    x: data.frame.x,
-                    y: data.frame.y,
-                    dx: data.frame.w,
-                    dy: data.frame.h
-                };
-            };
-
-            /* Extract the master (name, index) from a sprite name */
-            Textures.prototype._parse = function (src) {
-                var name = src.split('.')[0];
-                var bits = name.split('__');
-                return [bits[0], parseInt(bits[1])];
-            };
-
-            /* Access the data array of a given name */
-            Textures.prototype._data = function (items, name) {
-                if (!(name in items)) {
-                    items[name] = [];
-                }
-                return items[name];
-            };
-
-            /* Create a new PIXI texture for this pack */
-            Textures.prototype.texture = function () {
-                var frame = new PIXI.Rectangle(0, 0, 1, 1);
-                var base = new PIXI.BaseTexture(this._image);
-                var texture = new PIXI.Texture(base, frame);
-                return texture;
-            };
-            return Textures;
-        })();
-        texture_packer.Textures = Textures;
-    })(xx.texture_packer || (xx.texture_packer = {}));
-    var texture_packer = xx.texture_packer;
-})(xx || (xx = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="textures.ts"/>
-/// <reference path="pixi/__init__.ts"/>
-/// <reference path="tiled/__init__.ts"/>
-/// <reference path="box2d/__init__.ts"/>
-/// <reference path="texture_packer/__init__.ts"/>
-/// <reference path="../../../public/js/xn.d.ts"/>
-/// <reference path="../../../public/js/dsync.d.ts"/>
-/// <reference path="../../../lib/xn/src/xx/__init__.ts"/>

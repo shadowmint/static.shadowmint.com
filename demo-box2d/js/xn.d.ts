@@ -10,11 +10,11 @@ declare module xn {
         DISPLAY = 1,
     }
     interface Viewport {
-        display: Point;
-        world: Point;
-        view(view: Quad): void;
-        point(p: Point, target: Target): Point;
-        size(p: Point, target: Target): Point;
+        display: xn.Point;
+        world: xn.Point;
+        view(view: xn.Quad): void;
+        point(p: xn.Point, target: Target): xn.Point;
+        size(p: xn.Point, target: Target): xn.Point;
     }
 }
 declare module xn {
@@ -50,14 +50,9 @@ declare module xn {
         public each(apply: (key: U, value: V) => void): void;
         public map(map: (value: V) => V): void;
         public setInternal(data: any): void;
-        public keys(): List<U>;
-        public values(): List<V>;
+        public keys(): xn.List<U>;
+        public values(): xn.List<V>;
         public all(): any;
-    }
-}
-declare module xn {
-    module factory {
-        function make<T>(t: any, args?: any[]): T;
     }
 }
 declare module xn {
@@ -80,8 +75,8 @@ declare module xn {
 }
 declare module xn {
     class Quad {
-        public size: Point;
-        public pos: Point;
+        public size: xn.Point;
+        public pos: xn.Point;
         public angle: number;
         constructor(x?: number, y?: number, dx?: number, dy?: number, angle?: number);
         public clone(): Quad;
@@ -89,28 +84,28 @@ declare module xn {
 }
 declare module xn {
     class StaticViewport {
-        public world: Point;
-        public display: Point;
-        public viewport: Quad;
-        constructor(world: Point, display: Point);
+        public world: xn.Point;
+        public display: xn.Point;
+        public viewport: xn.Quad;
+        constructor(world: xn.Point, display: xn.Point);
         public all(): void;
-        public view(view: Quad): void;
-        public point(p: Point, target?: Target): Point;
+        public view(view: xn.Quad): void;
+        public point(p: xn.Point, target?: xn.Target): xn.Point;
         private _vpoint(p, target);
         private _size(p, target?);
-        public size(p: Point, target?: Target): Point;
+        public size(p: xn.Point, target?: xn.Target): xn.Point;
     }
 }
 declare module xn {
     module dom {
-        function removeEventListener(e: any, key: string, callback: any): void;
-        function addEventListener(e: any, key: string, callback: any): void;
+        function removeEventListener(e: HTMLElement, key: string, callback: any): void;
+        function addEventListener(e: HTMLElement, key: string, callback: any): void;
     }
 }
 declare module xn {
     module pointer {
-        function absolute(e: any): Point;
-        function relative(e: any, parent: HTMLElement): Point;
+        function absolute(e: any): xn.Point;
+        function relative(e: any, parent: HTMLElement): xn.Point;
     }
 }
 declare module xn {
@@ -123,14 +118,14 @@ declare module xn {
         public setActive(active?: boolean): void;
     }
     class Events {
-        public bindings: List<EventBinding>;
+        public bindings: xn.List<EventBinding>;
         public bind(target: any, event: string, handler: (e: any) => boolean): Events;
         public activate(): void;
         public clear(): void;
     }
 }
 declare module xn {
-    class EventListenerBase implements EventListener {
+    class EventListenerBase implements xn.EventListener {
         private _bindings;
         private _keys;
         constructor(keys: string[]);
@@ -152,7 +147,7 @@ declare module xn {
 }
 declare module xn {
     module logger {
-        class DummyLogger implements Handler {
+        class DummyLogger implements logger.Handler {
             public log(msg: any): void;
             public info(msg: any): void;
             public warn(msg: any): void;
@@ -164,7 +159,7 @@ declare module xn {
 declare var window: Window;
 declare module xn {
     module logger {
-        class ConsoleLogger implements Handler {
+        class ConsoleLogger implements logger.Handler {
             public info(msg: any): void;
             public warn(msg: any): void;
             public error(msg: any, e: any): void;
@@ -175,8 +170,8 @@ declare module xn {
 }
 declare module xn {
     module logger {
-        class RedirectLogger implements Handler {
-            public target: Handler;
+        class RedirectLogger implements logger.Handler {
+            public target: logger.Handler;
             public info(msg: any): void;
             public warn(msg: any): void;
             public error(msg: any, e: any): void;
@@ -190,10 +185,10 @@ declare module xn {
 }
 declare module xn {
     module logger {
-        class DocumentLogger implements Handler {
+        class DocumentLogger implements logger.Handler {
             public target: HTMLElement;
             constructor(target?: HTMLElement);
-            public _append(prefix: string, msg: any): void;
+            public _append(msg: string): void;
             public info(msg: any): void;
             public warn(msg: any): void;
             public error(msg: any, e: any): void;
@@ -216,8 +211,8 @@ declare module xn {
         */
         function get(): RedirectLogger;
     }
-    var console: logger.RedirectLogger;
-    function log(...msgs: any[]): void;
+    var log: logger.RedirectLogger;
+    function trace(...msgs: any[]): void;
     function dump(target: any): string;
 }
 declare module xn {
@@ -229,7 +224,7 @@ declare module xn {
     }
 }
 declare module xn {
-    class NotImplementedError extends Error {
+    class NotImplementedError extends xn.Error {
         constructor();
     }
 }
@@ -243,124 +238,4 @@ declare module xn {
         function select(a: any[]): any;
         function color(): number;
     }
-}
-declare module xn {
-    class Xhr {
-        private _xhr;
-        private _def;
-        constructor();
-        private _stateChange();
-        public open(method: string, url: string): void;
-        public send(data?: any): Promise;
-        static factory(): any;
-    }
-}
-declare module xn {
-    enum AssetType {
-        UNKNOWN = 0,
-        JSON = 1,
-        IMAGE = 2,
-        BUNDLE = 3,
-    }
-    interface Asset {
-        data: any;
-        url: string;
-        type: AssetType;
-    }
-    class Assets {
-        public prefix: string;
-        private _types;
-        constructor(root: string);
-        private _binding(type);
-        public load(url: string, type: AssetType): Promise;
-    }
-}
-declare module xn {
-    module assets {
-        interface AssetLoader {
-            load(url: any): Promise;
-        }
-    }
-}
-declare module xn {
-    module assets {
-        class ImageLoader implements AssetLoader {
-            public load(url: any): Promise;
-        }
-    }
-}
-declare module xn {
-    module assets {
-        class JsonLoader implements AssetLoader {
-            public load(url: any): Promise;
-        }
-    }
-}
-declare module xn {
-    class Bundle {
-        private _assets;
-        private _total;
-        private _loaded;
-        constructor(url: string);
-        static load(T: any, url?: string, ticks?: (e: TickEvent) => void): Promise;
-        static key(T: AssetType, data: any): any;
-        private _asType(v);
-        public reload(ticks: (e: TickEvent) => void): Promise;
-        private _dispatchTick(asset, promise, handler);
-        private _loadAsset(key, url, t, promise, handler);
-        private _loadBundle(key, target, t, promise, handler);
-    }
-    interface TickEvent {
-        bundle: Bundle;
-        assetsLoaded: number;
-        assetsTotal: number;
-        asset: Asset;
-    }
-}
-declare module xn {
-    module prim {
-        class Utility {
-            static isFunc(target: any): boolean;
-            static isObj(target: any): boolean;
-            static isPromise(target: any): boolean;
-        }
-        class Collection {
-            public _data: Promised[];
-            public add(item: Promised): Promise;
-            public any(): number;
-            public next(): Promised;
-        }
-        enum State {
-            PENDING = 0,
-            FORFILLED = 1,
-            REJECTED = 2,
-        }
-        class Promised {
-            public resolve: (value: any) => any;
-            public reject: (value: any) => any;
-            public child: Promise;
-            public accept: boolean;
-            constructor(resolve: any, reject: any);
-        }
-        class Internal {
-            public id: number;
-            public state: State;
-            public children: Collection;
-            public value: any;
-            public reason: any;
-            private static _id;
-            constructor();
-        }
-    }
-    class Promise {
-        public _state: prim.Internal;
-        public then(resolve?: any, reject?: any): Promise;
-        public resolve(value?: any): Promise;
-        public reject(reason?: any): Promise;
-        private _executePromisedAction(promised);
-        private _nextPromisedAction();
-        private _fullfillPromise();
-        private static _resolvePromise(promise, value);
-    }
-    function asap(target: any): void;
 }

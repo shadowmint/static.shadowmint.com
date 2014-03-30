@@ -12,9 +12,6 @@ var xn;
     
 })(xn || (xn = {}));
 /// <reference path="../__init__.ts"/>
-/// <reference path="event_listener.ts"/>
-/// <reference path="viewport.ts"/>
-/// <reference path="../__init__.ts"/>
 var xn;
 (function (xn) {
     /* An array wrapper with some extra features and browser support */
@@ -249,29 +246,6 @@ var xn;
     xn.Map = Map;
 })(xn || (xn = {}));
 /// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    (function (factory) {
-        /*
-        * Make an instance from a class object
-        * @param t The class to make one of
-        * @param args The constructor arguments
-        */
-        function make(t, args) {
-            if (typeof args === "undefined") { args = []; }
-            var instance = Object.create(t.prototype);
-            instance.constructor.apply(instance, args);
-            return instance;
-        }
-        factory.make = make;
-    })(xn.factory || (xn.factory = {}));
-    var factory = xn.factory;
-})(xn || (xn = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="list.ts"/>
-/// <reference path="map.ts"/>
-/// <reference path="factory.ts"/>
-/// <reference path="__init__.ts"/>
 /// <reference path="__init__.ts"/>
 var xn;
 (function (xn) {
@@ -349,10 +323,6 @@ var xn;
     })();
     xn.Quad = Quad;
 })(xn || (xn = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="point.ts"/>
-/// <reference path="vector.ts"/>
-/// <reference path="quad.ts"/>
 /// <reference path="__init__.ts"/>
 var xn;
 (function (xn) {
@@ -438,8 +408,6 @@ var xn;
     })();
     xn.StaticViewport = StaticViewport;
 })(xn || (xn = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="static_viewport.ts"/>
 /// <reference path="__init__.ts"/>
 var xn;
 (function (xn) {
@@ -507,8 +475,8 @@ var xn;
         }
         /* Add/remove this event target */
         EventBinding.prototype.setActive = function (active) {
-            var _this = this;
             if (typeof active === "undefined") { active = true; }
+            var _this = this;
             if ((active) && (!this.token)) {
                 this.token = function (e) {
                     e = e || window.event;
@@ -607,11 +575,6 @@ var xn;
     })();
     xn.EventListenerBase = EventListenerBase;
 })(xn || (xn = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="dom.ts"/>
-/// <reference path="pointer.ts"/>
-/// <reference path="events.ts"/>
-/// <reference path="event_listener.ts"/>
 /// <reference path="__init__.ts"/>
 /// <reference path="__init__.ts"/>
 var xn;
@@ -670,8 +633,9 @@ var xn;
                     return window.console;
                 } catch (e) {
                     try  {
-                        return xn.console;
+                        return console;
                     } catch (e) {
+                        console.log('Failed: ' + e.toString());
                         return new xn.logger.DummyLogger();
                     }
                 }
@@ -690,7 +654,7 @@ var xn;
         var RedirectLogger = (function () {
             function RedirectLogger() {
                 /* Actual logger to invoke */
-                this.target = new xn.logger.ConsoleLogger();
+                this.target = new xn.logger.DummyLogger();
             }
             RedirectLogger.prototype.info = function (msg) {
                 this.target.info(msg);
@@ -779,10 +743,9 @@ var xn;
                     this.target = e;
                 }
             }
-            DocumentLogger.prototype._append = function (prefix, msg) {
-                msg = msg == null ? 'null' : msg;
+            DocumentLogger.prototype._append = function (msg) {
                 var e = document.createElement('div');
-                e.innerHTML = prefix + ": " + msg.toString();
+                e.innerHTML = msg.toString();
                 if (this.target.childNodes.length > 0) {
                     this.target.insertBefore(e, this.target.firstChild);
                 } else {
@@ -794,16 +757,19 @@ var xn;
             };
 
             DocumentLogger.prototype.info = function (msg) {
-                this._append('info', msg);
+                msg = msg == null ? 'null' : msg.toString();
+                this._append('info: ' + msg);
             };
 
             DocumentLogger.prototype.warn = function (msg) {
-                this._append('warning', msg);
+                msg = msg == null ? 'null' : msg.toString();
+                this._append('warning: ' + msg);
             };
 
             DocumentLogger.prototype.error = function (msg, e) {
+                msg = msg == null ? 'null' : msg.toString();
                 e = e == null ? 'null' : e.toString();
-                this._append('error', msg + ': ' + e);
+                this._append('error: ' + msg + ': ' + e);
                 if (window.console) {
                     window.console.error(e);
                 }
@@ -844,7 +810,7 @@ var xn;
 /// <reference path="document_logger.ts"/>
 var xn;
 (function (xn) {
-    (function (__logger) {
+    (function (logger) {
         /* Public logger handle; allows rebinding in init */
         var _logger;
 
@@ -857,7 +823,7 @@ var xn;
             var logger = get();
             logger.target = impl;
         }
-        __logger.init = init;
+        logger.init = init;
 
         /**
         * Returns the logger implementation.
@@ -869,24 +835,24 @@ var xn;
             }
             return _logger;
         }
-        __logger.get = get;
+        logger.get = get;
     })(xn.logger || (xn.logger = {}));
     var logger = xn.logger;
 
     /* Public logger instance for anyone to use */
-    xn.console = xn.logger.get();
+    xn.log = xn.logger.get();
 
     /* A simple info trace helper */
-    function log() {
+    function trace() {
         var msgs = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             msgs[_i] = arguments[_i + 0];
         }
         for (var i = 0; i < msgs.length; ++i) {
-            xn.console.info(msgs[i]);
+            xn.log.info(msgs[i]);
         }
     }
-    xn.log = log;
+    xn.trace = trace;
 
     /* Print all properties on a target */
     function dump(target) {
@@ -904,7 +870,7 @@ var xn;
     /* Base type for meaningful errors */
     var Error = (function () {
         function Error(msg, type) {
-            if (typeof type === "undefined") { type = 'xn.Error'; }
+            if (typeof type === "undefined") { type = 'x.Error'; }
             this.message = msg;
             this.name = type;
         }
@@ -929,7 +895,7 @@ var xn;
     var NotImplementedError = (function (_super) {
         __extends(NotImplementedError, _super);
         function NotImplementedError() {
-            _super.call(this, 'Not implemented', 'xn.NotImplementedError');
+            _super.call(this, 'Not implemented', 'x.NotImplementedError');
         }
         return NotImplementedError;
     })(xn.Error);
@@ -942,7 +908,7 @@ var xn;
 (function (xn) {
     /* Easy exception creation */
     function error(msg, type) {
-        if (typeof type === "undefined") { type = 'xn.Error'; }
+        if (typeof type === "undefined") { type = 'n.Error'; }
         return new xn.Error(msg, type);
     }
     xn.error = error;
@@ -985,572 +951,3 @@ var xn;
     })(xn.random || (xn.random = {}));
     var random = xn.random;
 })(xn || (xn = {}));
-var xn;
-(function (xn) {
-    /* Simple ajax wrapper */
-    var Xhr = (function () {
-        function Xhr() {
-            var _this = this;
-            this._def = null;
-            this._xhr = Xhr.factory();
-            xn.dom.addEventListener(this._xhr, 'readystatechange', function (e) {
-                _this._stateChange();
-            });
-        }
-        /* Changes on state */
-        Xhr.prototype._stateChange = function () {
-            if (this._xhr.readyState == 4) {
-                if (this._xhr.status == 200) {
-                    this._def.resolve(this._xhr.responseText);
-                } else {
-                    this._def.reject(this._xhr.statusText);
-                }
-            }
-        };
-
-        /* Open a url */
-        Xhr.prototype.open = function (method, url) {
-            this._xhr.open(method, url);
-        };
-
-        /* Send the request */
-        Xhr.prototype.send = function (data) {
-            if (this._def != null) {
-                throw xn.error("Invalid request; this object is already busy");
-            }
-            this._xhr.send(data);
-            this._def = new xn.Promise();
-            return this._def;
-        };
-
-        /* Create and return an XHR object */
-        Xhr.factory = function () {
-            try  {
-                return new XMLHttpRequest();
-            } catch (e) {
-            }
-            try  {
-                return new ActiveXObject("Msxml3.XMLHTTP");
-            } catch (e) {
-            }
-            try  {
-                return new ActiveXObject("Msxml2.XMLHTTP.6.0");
-            } catch (e) {
-            }
-            try  {
-                return new ActiveXObject("Msxml2.XMLHTTP.3.0");
-            } catch (e) {
-            }
-            try  {
-                return new ActiveXObject("Msxml2.XMLHTTP");
-            } catch (e) {
-            }
-            try  {
-                return new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e) {
-            }
-            return null;
-        };
-        return Xhr;
-    })();
-    xn.Xhr = Xhr;
-})(xn || (xn = {}));
-/// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    /* Known types of assets */
-    (function (AssetType) {
-        AssetType[AssetType["UNKNOWN"] = 0] = "UNKNOWN";
-        AssetType[AssetType["JSON"] = 1] = "JSON";
-        AssetType[AssetType["IMAGE"] = 2] = "IMAGE";
-        AssetType[AssetType["BUNDLE"] = 3] = "BUNDLE";
-    })(xn.AssetType || (xn.AssetType = {}));
-    var AssetType = xn.AssetType;
-
-    
-
-    /* Path controlled asset loader */
-    var Assets = (function () {
-        /* Create an instance with a given root prefix for assets */
-        function Assets(root) {
-            /* The set of known bindings for asset types */
-            this._types = {};
-            this.prefix = root;
-            this._types[2 /* IMAGE */] = xn.assets.ImageLoader;
-            this._types[1 /* JSON */] = xn.assets.JsonLoader;
-        }
-        /* Get the current binding */
-        Assets.prototype._binding = function (type) {
-            var rtn = this._types[type];
-            rtn = rtn ? rtn : null;
-            return rtn;
-        };
-
-        /* Load all the assets async and dispatch an event when they're ready */
-        Assets.prototype.load = function (url, type) {
-            var factory = this._binding(type);
-            if (!factory) {
-                throw xn.error("Invalid type: '" + type + "' is not a known asset type");
-            }
-            var def = new xn.Promise();
-            var loader = xn.factory.make(factory);
-            loader.load(url).then(function (data) {
-                var asset = { type: type, url: url, data: data };
-                def.resolve(asset);
-            });
-            return def;
-        };
-        return Assets;
-    })();
-    xn.Assets = Assets;
-})(xn || (xn = {}));
-/// <reference path="__init__.ts"/>
-/// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    (function (assets) {
-        var ImageLoader = (function () {
-            function ImageLoader() {
-            }
-            ImageLoader.prototype.load = function (url) {
-                var def = new xn.Promise();
-                var data = new Image();
-                xn.dom.addEventListener(data, 'load', function () {
-                    def.resolve(data);
-                });
-                xn.dom.addEventListener(data, 'error', function (e) {
-                    def.reject(e);
-                });
-                data.src = url;
-                return def;
-            };
-            return ImageLoader;
-        })();
-        assets.ImageLoader = ImageLoader;
-    })(xn.assets || (xn.assets = {}));
-    var assets = xn.assets;
-})(xn || (xn = {}));
-/// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    (function (assets) {
-        var JsonLoader = (function () {
-            function JsonLoader() {
-            }
-            JsonLoader.prototype.load = function (url) {
-                var def = new xn.Promise();
-                var request = new xn.Xhr();
-                request.open('GET', url);
-                request.send().then(function (data) {
-                    try  {
-                        var data = JSON.parse(data);
-                        def.resolve(data);
-                    } catch (e) {
-                        def.reject(e);
-                    }
-                }, function (reason) {
-                    def.reject(reason);
-                });
-                return def;
-            };
-            return JsonLoader;
-        })();
-        assets.JsonLoader = JsonLoader;
-    })(xn.assets || (xn.assets = {}));
-    var assets = xn.assets;
-})(xn || (xn = {}));
-/// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    /*
-    * Handles loading groups of assets
-    *
-    * It can be convenient to load a group of assets all at once.
-    * To do this, extend bundler and give the subclass a set of public
-    * properties that are of type any with a value:
-    *
-    *      [type, data]
-    *
-    * Where type is one of AssetType and data is as appropriate for the type;
-    * usually a url. The Bundle.key() shortcut exists for formatting these
-    * correctly:
-    *
-    *      public mything:any = Bundle.key(AssetType.IMAGE, '/blah/image.png');
-    *      public myjson:any = Bundle.key(AssetType.JSON//png, '/blah/images.json');
-    *      public mybundle:any = Bundle.key(AssetType.BUNDLE, OtherBundle);
-    *
-    * Bundle load is recursive and will break things if you have cycles in
-    * the binding of child-parents.
-    */
-    var Bundle = (function () {
-        function Bundle(url) {
-            this._assets = new xn.Assets(url);
-            this._total = 0;
-            this._loaded = 0;
-        }
-        /*
-        * Loads and then resolves with the Bundle
-        * @param T The bundle type to load.
-        * @param url The base url to assets.
-        * @param ticks A callback invoked everytime an asset is loaded.
-        */
-        Bundle.load = function (T, url, ticks) {
-            if (typeof url === "undefined") { url = '/'; }
-            if (typeof ticks === "undefined") { ticks = null; }
-            var i = xn.factory.make(T, [url]);
-            return i.reload(ticks);
-        };
-
-        /* Generate an appropriate key */
-        Bundle.key = function (T, data) {
-            return [T, data];
-        };
-
-        /* Parse as a valid asset type */
-        Bundle.prototype._asType = function (v) {
-            var rtn = 0 /* UNKNOWN */;
-            try  {
-                rtn = Number(v);
-            } catch (e) {
-            }
-            return rtn;
-        };
-
-        /* Load the assets for this instance */
-        Bundle.prototype.reload = function (ticks) {
-            var def = new xn.Promise();
-            for (var key in this) {
-                var value = this[key];
-                if (value instanceof Array) {
-                    try  {
-                        var t = this._asType(value[0]);
-                        var v = value[1];
-                        if (t == 3 /* BUNDLE */) {
-                            this._loadBundle(key, v, t, def, ticks);
-                        } else {
-                            this._loadAsset(key, v, t, def, ticks);
-                        }
-                        this._total += 1;
-                    } catch (e) {
-                        xn.log("Error invoking bundler", e);
-                    }
-                }
-            }
-            return def;
-        };
-
-        /* Dispatch a tick event */
-        Bundle.prototype._dispatchTick = function (asset, promise, handler) {
-            handler({
-                bundle: this,
-                assetsLoaded: this._loaded,
-                assetsTotal: this._total,
-                asset: asset
-            });
-            if (this._loaded == this._total) {
-                promise.resolve(this);
-            }
-        };
-
-        /* Load an actual asset */
-        Bundle.prototype._loadAsset = function (key, url, t, promise, handler) {
-            var _this = this;
-            this._assets.load(url, t).then(function (asset) {
-                _this._loaded += 1;
-                _this[key] = asset.data;
-                _this._dispatchTick(asset, promise, handler);
-            });
-        };
-
-        /* Load a bundle */
-        Bundle.prototype._loadBundle = function (key, target, t, promise, handler) {
-            var _this = this;
-            Bundle.load(target, this._assets.prefix, handler).then(function (bundle) {
-                _this._loaded += 1;
-                var asset = {
-                    url: null,
-                    data: bundle,
-                    type: 3 /* BUNDLE */
-                };
-                _this[key] = bundle;
-                _this._dispatchTick(asset, promise, handler);
-            });
-        };
-        return Bundle;
-    })();
-    xn.Bundle = Bundle;
-
-    
-})(xn || (xn = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="xhr.ts"/>
-/// <reference path="assets.ts"/>
-/// <reference path="asset_loader.ts"/>
-/// <reference path="image.ts"/>
-/// <reference path="json.ts"/>
-/// <reference path="bundle.ts"/>
-/// <reference path="__init__.ts"/>
-var xn;
-(function (xn) {
-    (function (prim) {
-        // Utility functions
-        var Utility = (function () {
-            function Utility() {
-            }
-            // Check if a function
-            Utility.isFunc = function (target) {
-                return !!(target && target.constructor && target.call && target.apply);
-            };
-
-            // Check if an object
-            Utility.isObj = function (target) {
-                return (!!target) && (typeof (target) === 'object');
-            };
-
-            // Check if object is a promise
-            Utility.isPromise = function (target) {
-                return target instanceof xn.Promise;
-            };
-            return Utility;
-        })();
-        prim.Utility = Utility;
-
-        // Safe aggregate of objects
-        var Collection = (function () {
-            function Collection() {
-                // Actual data
-                this._data = [];
-            }
-            // Add an item
-            Collection.prototype.add = function (item) {
-                this._data.push(item);
-                return item.child;
-            };
-
-            // Any items left?
-            Collection.prototype.any = function () {
-                return this._data.length;
-            };
-
-            // Get the next item or raise exception
-            Collection.prototype.next = function () {
-                if (this._data.length == 0) {
-                    throw new xn.Error('Invalid attempt read empty dataset');
-                }
-                return this._data.shift();
-            };
-            return Collection;
-        })();
-        prim.Collection = Collection;
-
-        // Promise states
-        (function (State) {
-            State[State["PENDING"] = 0] = "PENDING";
-            State[State["FORFILLED"] = 1] = "FORFILLED";
-            State[State["REJECTED"] = 2] = "REJECTED";
-        })(prim.State || (prim.State = {}));
-        var State = prim.State;
-
-        // A promised action set and its associated promise
-        var Promised = (function () {
-            function Promised(resolve, reject) {
-                this.resolve = resolve;
-                this.reject = reject;
-                this.child = new xn.Promise();
-                this.accept = true;
-            }
-            return Promised;
-        })();
-        prim.Promised = Promised;
-
-        // The internal state collections of a promise
-        var Internal = (function () {
-            function Internal() {
-                this.state = 0 /* PENDING */;
-                this.children = new Collection();
-                Internal._id += 1;
-                this.id = Internal._id;
-            }
-            Internal._id = 0;
-            return Internal;
-        })();
-        prim.Internal = Internal;
-    })(xn.prim || (xn.prim = {}));
-    var prim = xn.prim;
-
-    // Promise type
-    var Promise = (function () {
-        function Promise() {
-            // Internal state collection
-            this._state = new prim.Internal();
-        }
-        // Chain promises
-        Promise.prototype.then = function (resolve, reject) {
-            if (typeof resolve === "undefined") { resolve = undefined; }
-            if (typeof reject === "undefined") { reject = undefined; }
-            return this._state.children.add(new prim.Promised(resolve, reject));
-        };
-
-        // Resolve this promise
-        Promise.prototype.resolve = function (value) {
-            var _this = this;
-            if (typeof value === "undefined") { value = undefined; }
-            if (this._state.state == 0 /* PENDING */) {
-                if (this === value) {
-                    throw TypeError('Cannot resolve promise with itself');
-                }
-                this._state.value = value;
-                this._state.state = 1 /* FORFILLED */;
-                xn.asap(function () {
-                    Promise._resolvePromise(_this, value);
-                });
-            }
-            return this;
-        };
-
-        // Reject this promise
-        Promise.prototype.reject = function (reason) {
-            var _this = this;
-            if (typeof reason === "undefined") { reason = undefined; }
-            if (this._state.state == 0 /* PENDING */) {
-                if (this === reason) {
-                    throw TypeError('Cannot reject promise with itself');
-                }
-                this._state.reason = reason;
-                this._state.state = 2 /* REJECTED */;
-                xn.asap(function () {
-                    Promise._resolvePromise(_this, reason);
-                });
-            }
-            return this;
-        };
-
-        // Run the resolution action for a promise, and return the correct return value
-        Promise.prototype._executePromisedAction = function (promised) {
-            try  {
-                var action = null;
-                var value;
-                if (promised.accept) {
-                    value = this._state.value;
-                    action = promised.resolve;
-                } else {
-                    value = this._state.reason;
-                    action = promised.reject;
-                }
-                if (prim.Utility.isFunc(action)) {
-                    return action(value);
-                } else {
-                    return value;
-                }
-            } catch (e) {
-                promised.accept = false;
-                return e;
-            }
-        };
-
-        // Run the next promise resolution for this promise
-        // Update internal promise state from the result
-        // @return true if a new next promise should be scheduled
-        Promise.prototype._nextPromisedAction = function () {
-            var rtn = false;
-            if (this._state.state != 0 /* PENDING */) {
-                if (this._state.children.any()) {
-                    rtn = true; // If we have an action, we need to poll for actions added by children
-                    var promised = this._state.children.next();
-                    promised.accept = this._state.state == 1 /* FORFILLED */;
-                    var promise_rtn = this._executePromisedAction(promised);
-
-                    try  {
-                        if (promised.accept) {
-                            var child = promised.child;
-                            child.resolve(promise_rtn);
-                        } else {
-                            var child = promised.child;
-                            child.reject(promise_rtn);
-                        }
-                    } catch (e) {
-                        promised.child.reject(e);
-
-                        // An error of this type rejects this promise too for
-                        // the rest of the internal promise chain
-                        this._state.state = 2 /* REJECTED */;
-                        this._state.reason = e;
-                    }
-                }
-            }
-            return rtn;
-        };
-
-        // Fullfill this promise with the given value
-        Promise.prototype._fullfillPromise = function () {
-            var _this = this;
-            if (this._nextPromisedAction()) {
-                xn.asap(function () {
-                    _this._fullfillPromise();
-                });
-            }
-        };
-
-        // Compliant resolve promise.
-        Promise._resolvePromise = function (promise, value) {
-            if (prim.Utility.isPromise(value)) {
-                promise._state.state = value._state.state;
-            } else if (prim.Utility.isFunc(value) || prim.Utility.isObj(value)) {
-                try  {
-                    var then = value.then;
-                    if (prim.Utility.isFunc(then)) {
-                        var resolved = false;
-                        try  {
-                            then.call(value, function (v) {
-                                if (!resolved) {
-                                    resolved = true;
-                                    Promise._resolvePromise(promise, v);
-                                }
-                            }, function (r) {
-                                if (!resolved) {
-                                    resolved = true;
-                                    Promise._resolvePromise(promise, r);
-                                }
-                            });
-                        } catch (e) {
-                            if (!resolved) {
-                                resolved = true;
-                                promise._state.state = 2 /* REJECTED */;
-                                promise._state.state = e;
-                                promise._fullfillPromise();
-                            }
-                        }
-                    } else {
-                        promise._fullfillPromise();
-                    }
-                } catch (e) {
-                    promise._state.state = 2 /* REJECTED */;
-                    promise._state.state = e;
-                    promise._fullfillPromise();
-                }
-            } else {
-                promise._fullfillPromise();
-            }
-        };
-        return Promise;
-    })();
-    xn.Promise = Promise;
-
-    /* Invoke an async callback */
-    function asap(target) {
-        setTimeout(target, 0);
-    }
-    xn.asap = asap;
-})(xn || (xn = {}));
-/// <reference path="promise.ts"/>
-/// <reference path="interfaces/__init__.ts"/>
-/// <reference path="data/__init__.ts"/>
-/// <reference path="geom/__init__.ts"/>
-/// <reference path="viewports/__init__.ts"/>
-/// <reference path="events/__init__.ts"/>
-/// <reference path="logger/__init__.ts"/>
-/// <reference path="errors/__init__.ts"/>
-/// <reference path="random/__init__.ts"/>
-/// <reference path="assets/__init__.ts"/>
-/// <reference path="promise/__init__.ts"/>
-/// <reference path="../../../lib/xn/src/xn/__init__.ts"/>

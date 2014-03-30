@@ -133,8 +133,6 @@ var dsync;
     })(dsync.dom || (dsync.dom = {}));
     var dom = dsync.dom;
 })(dsync || (dsync = {}));
-/// <reference path="../__init__.ts"/>
-/// <reference path="dom.ts"/>
 /// <reference path="__init__.ts"/>
 var dsync;
 (function (dsync) {
@@ -223,9 +221,3 @@ var dsync;
     })();
     dsync.Sync = Sync;
 })(dsync || (dsync = {}));
-/// <reference path="api.ts"/>
-/// <reference path="binding.ts"/>
-/// <reference path="channel.ts"/>
-/// <reference path="watchers/__init__.ts"/>
-/// <reference path="sync.ts"/>
-/// <reference path="../../../lib/dsync/src/__init__.ts"/>
