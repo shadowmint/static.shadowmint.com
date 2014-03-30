@@ -1,0 +1,37 @@
+<head>
+    <script src="js/libs/jquery.min.js"></script>
+    <script src="js/libs/pixi.js"></script>
+    <script src="js/dsync.js"></script>
+    <script src="js/xn.js"></script>
+    <script src="js/xx.js"></script>
+    <script src="js/live.js"></script>
+    <script src="js/syn.js"></script>
+    <script src="js/demo.js"></script>
+    <link href="css/styles.scss.css" rel="stylesheet" type="text/css" media="all"/>
+</head>
+<body>
+    <div id="content"></div>
+    <div id="stuff">
+        <p>
+            <a href="" syn-click="state('idle')">Stop</a>
+            <a href="" syn-click="state('walk')">Walk</a>
+            <a href="" syn-click="state('back')">Back</a>
+            <a href="" syn-click="state('jump')">Jump</a>
+            <a href="" syn-click="state('crouch')">Crouch</a>
+            <a href="" syn-click="state('dead')">Dead</a>
+        </p>
+        <p>
+            <a href="" syn-click="res('simple')">Low res</a>
+            <a href="" syn-click="res('fancy')">High res</a>
+        </p>
+        <p>
+            <div syn-model="loading"></div>
+            <a href="" syn-click="stop()">halt animations</a>
+        </p>
+    </div>
+    <div id="log"></div>
+    <script>
+        demo.main('/', true);
+    </script>
+</body>
+

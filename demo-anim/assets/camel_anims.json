@@ -1,0 +1,32 @@
+{
+    "idle": {
+        "enter": null,
+        "exit": null,
+        "active": { "name": "static", "duration": 1, "repeat": false, "forwards": true }
+    },
+    "back": {
+        "enter": null,
+        "exit": null,
+        "active": { "name": "anim_walk", "duration": 800, "repeat": true, "forwards": false }
+    },
+    "walk": {
+        "enter": null,
+        "exit": null,
+        "active": { "name": "anim_walk", "duration": 800, "repeat": true, "forwards": true }
+    },
+    "jump": {
+        "enter": { "name": "anim_jump", "duration": 300, "repeat": false, "forwards": true },
+        "exit": { "name": "anim_jump", "duration": 300, "repeat": false, "forwards": false },
+        "active": { "name": "jump", "duration": 1, "repeat": false, "forwards": true }
+    },
+    "crouch": {
+        "enter": { "name": "anim_crouch", "duration": 300, "repeat": false, "forwards": true },
+        "exit": { "name": "anim_crouch", "duration": 300, "repeat": false, "forwards": false },
+        "active": { "name": "crouch", "duration": 1, "repeat": false, "forwards": true }
+    },
+    "dead": {
+        "enter": { "name": "anim_dead", "duration": 500, "repeat": false, "forwards": true },
+        "exit": { "name": "anim_dead", "duration": 500, "repeat": false, "forwards": false },
+        "active": { "name": "dead", "duration": 1, "repeat": false, "forwards": true }
+    }
+}
